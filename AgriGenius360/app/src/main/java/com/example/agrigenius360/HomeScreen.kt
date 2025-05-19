@@ -21,9 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun HomeScreen(
-
-) {
+fun HomeScreen(modifier: Modifier = Modifier) {
     Column(modifier = Modifier.fillMaxSize()) {
 
         Surface(
