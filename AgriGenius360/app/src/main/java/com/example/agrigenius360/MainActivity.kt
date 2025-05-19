@@ -50,7 +50,10 @@ fun AgroApp() {
         ) {
             composable("signin")      { SignInScreen(navController) }
             composable("signup")      { SignUpScreen(navController) }
-            composable("otpverify")   { OtpVerificationScreen(navController) }
+            composable("otpverify/{phoneNumber}/{otp}")   { backStackEntry ->
+                val phoneNumber = backStackEntry.arguments?.getString("phoneNumber") ?:""
+                val otp = backStackEntry.arguments?.getString("otp") ?:""
+                OtpVerificationScreen(navController, phoneNumber, otp ) }
             composable("home")         { HomeScreen(navController) }
 //            composable("notifications"){ NotificationsScreen() }
             composable("profile")      { ProfileScreen() }
