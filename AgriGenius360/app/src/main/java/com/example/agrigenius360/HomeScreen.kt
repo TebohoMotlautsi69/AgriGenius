@@ -19,9 +19,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
+fun HomeScreen(navController: NavController) {
+
     Column(modifier = Modifier.fillMaxSize()) {
 
         Surface(
@@ -40,10 +45,9 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             )
         }
 
-        /** Spacer to mimic RN paddingTop = 100 */
+
         Spacer(modifier = Modifier.height(100.dp))
 
-        /** Three feature tiles */
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -53,12 +57,16 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 
             FeatureTile(
                 drawableId = R.drawable.growth,
-                onClick    = {}
+                onClick    = {
+                    navController.navigate("growth")
+                }
             )
 
             FeatureTile(
                 drawableId = R.drawable.moisture,
-                onClick    = {}
+                onClick    = {
+                    navController.navigate("sand")
+                }
             )
 
             FeatureTile(

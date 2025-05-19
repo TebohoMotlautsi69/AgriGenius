@@ -12,10 +12,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 
 
 @Composable
-fun SignInScreen() {
+fun SignInScreen(navController: NavHostController) {
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -39,6 +40,7 @@ fun SignInScreen() {
 
             Button(
                 onClick = {
+                    navController.navigate("otpverify")
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -53,7 +55,7 @@ fun SignInScreen() {
 
             Button(
                 onClick = {
-
+                    navController.navigate("signup")
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
                 modifier = Modifier

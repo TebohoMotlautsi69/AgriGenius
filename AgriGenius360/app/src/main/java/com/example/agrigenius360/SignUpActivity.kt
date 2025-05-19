@@ -12,10 +12,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 
 
 @Composable
-fun SignUpScreen() {
+fun SignUpScreen(navController: NavHostController) {
 
     var userName by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
@@ -47,6 +48,7 @@ fun SignUpScreen() {
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = {
+                    navController.navigate("signin")
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {

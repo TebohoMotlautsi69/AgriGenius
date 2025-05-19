@@ -18,51 +18,38 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 
 @Composable
-fun BottomBarNav() {
+fun BottomBarNav(navController: NavHostController) {
 
     val items = listOf(
-        NavItem("Home", Icons.Filled.Home),
-        NavItem("Marketplace", Icons.Filled.Notifications),
-        NavItem("Profile", Icons.Filled.Person)
+        NavItem("Home", Icons.Filled.Home, "home"),
+        NavItem("Notifications", Icons.Filled.Notifications, "notification"),
+        NavItem("Profile", Icons.Filled.Person, "profile")
     )
-    var selectedIndex by remember {
-        mutableIntStateOf(0)
-    }
-    Scaffold (
-        modifier = Modifier.fillMaxSize(),
-        bottomBar = {
-            NavigationBar {
-                items.forEachIndexed { index, navItem ->
-                    NavigationBarItem(
-                        selected = selectedIndex == index,
-                        onClick = {
-                            selectedIndex = index
-                        },
-                        icon = {
-                            Icon(imageVector = navItem.icon, contentDescription = "Icon")
-                        },
-                        label = {
-                            Text(navItem.label)
+    val currentRoute = currentRoute(navController)
+    NavigationBar {
+        items.forEach { item->
+            NavigationBarItem(
+                selected = currentRoute == item.route,
+                onClick = {
+                    navController.navigate(item.route)
+                          },
+                icon = {
+                    Icon(imageVector = item.icon, contentDescription = item.label)
+                       },
+                label = {
+                    Text(item.label)
                         }
-                    )
+            )
 
-                }
-
-            }
         }
-    ){  innerPadding ->
-        ContentScreen(modifier = Modifier.padding(innerPadding), selectedIndex)
-    }
-}
 
-@Composable
-fun ContentScreen(modifier: Modifier = Modifier, selectedIndex: Int) {
-    when(selectedIndex){
-        0-> HomeScreen()
-//        1-> HistoryScreen()
-//        2-> ProfileScreen()
     }
 
 }
+
