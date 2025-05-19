@@ -18,13 +18,14 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.agrigenius360.R
 import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun OtpVerificationScreen() {
+fun OtpVerificationScreen(navController: NavHostController) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -87,7 +88,7 @@ fun OtpVerificationScreen() {
             Button(
                 onClick = {
                     keyboardController?.hide()
-                    verifyOtp()
+                    navController.navigate("home")
                 },
                 modifier = Modifier
                     .fillMaxWidth()
