@@ -19,7 +19,7 @@ import androidx.navigation.compose.*
 
 
 @Composable
-fun ProfileScreen(nav: NavHostController) {
+fun ProfileScreen() {
 
     val userName    = "Username"
     val phoneNumber = "+27 594367952"
@@ -55,9 +55,6 @@ fun ProfileScreen(nav: NavHostController) {
 
             Spacer(Modifier.height(30.dp))
 
-            ProfileButton("Feedback")  { nav.navigate("feedback") }
-            ProfileButton("Connect")   { nav.navigate("chat") }
-            ProfileButton("Log out")   { nav.navigate("auth") }
         }
     }
 }
