@@ -1,5 +1,6 @@
 package com.example.agrigenius360
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -7,16 +8,32 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.room.Room
+import kotlinx.coroutines.launch
 
 
 @Composable
 fun SignInScreen(navController: NavHostController) {
+
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val db = remember {
+        Room.databaseBuilder(
+            context,
+            UsersDatabase ::class.java,
+            "users"
+        ).build()
+    }
+
+    var phoneNumber by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("") }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -29,18 +46,35 @@ fun SignInScreen(navController: NavHostController) {
             Image(painter = painterResource(id = R.drawable.applogo2), contentDescription = "App Logo", modifier =  Modifier.size(200.dp))
             Text(text = "AgriGenius360", fontSize = 32.sp, fontWeight = FontWeight.Bold )
             OutlinedTextField(
-                value = "+27-665367180",
-                onValueChange = { "+27-665367180" },
+                value = phoneNumber,
+                onValueChange = { phoneNumber = it },
                 label = { Text("Enter phone number") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
 
+            if(errorMessage.isNotEmpty()){
+                Text(text = errorMessage, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(8.dp))
+            }
             Spacer(Modifier.height(24.dp))
 
             Button(
                 onClick = {
-                    navController.navigate("otpverify")
+                    scope.launch {
+                        val user = db.usersDAO().findByPhone(phoneNumber)
+                        if(user != null){
+                            val otp = (100000..999999).random().toString()
+                            val expiry = System.currentTimeMillis() + 2 * 60 * 1000
+
+                            db.usersDAO().storeOtp(phoneNumber, otp, expiry)
+                            Toast.makeText(context, "OTP: $otp", Toast.LENGTH_SHORT).show()
+
+                            navController.navigate("otpverify/${phoneNumber}/${otp}")
+                        }else{
+                            errorMessage = "Please provide a registered phone number"
+                        }
+                    }
+
                 },
                 modifier = Modifier
                     .fillMaxWidth()
