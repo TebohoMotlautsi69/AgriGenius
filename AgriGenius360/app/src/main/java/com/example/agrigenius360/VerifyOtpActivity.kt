@@ -1,3 +1,4 @@
+import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -18,22 +19,56 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.room.Room
 import com.example.agrigenius360.R
+import com.example.agrigenius360.UsersDatabase
 import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun OtpVerificationScreen() {
+fun OtpVerificationScreen(navController: NavHostController, phoneNumber: String, otp: String ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val keyboardController = LocalSoftwareKeyboardController.current
+    val db = remember {
+        Room.databaseBuilder(
+            context,
+            UsersDatabase ::class.java,
+            "users"
+        ).build()
+    }
 
     val focusRequesters = List(6) { remember { FocusRequester() } }
     val otpDigits = remember { mutableStateListOf("", "", "", "", "", "") }
+    var errorMessage by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        otp.forEachIndexed { index, c ->
+            otpDigits[index] = c.toString()
+        }
+    }
 
     fun verifyOtp() {
         scope.launch {
+            val user = db.usersDAO().findByPhone(phoneNumber)
+            if(user != null){
+                val inputOtp = otpDigits.joinToString("")
+                val currentTime = System.currentTimeMillis()
+                if(user.lastOtp == inputOtp){
+                    if(user.lastOtpExpiry != null && user.lastOtpExpiry > currentTime){
+                        db.usersDAO().removeOtp(phoneNumber)
+                        navController.navigate("home")
+                    }else{
+                        errorMessage = "OTP has expired"
+                    }
+                }else{
+                    errorMessage = "Invalid OTP"
+                }
+            }else{
+                errorMessage = "User does not exist"
+            }
         }
     }
 
@@ -47,7 +82,7 @@ fun OtpVerificationScreen() {
         ) {
             Image(painter = painterResource(id = R.drawable.applogo2), contentDescription = "App Logo", modifier =  Modifier.size(200.dp))
             Text(text = "AgriGenius360", fontSize = 32.sp, fontWeight = FontWeight.Bold )
-            Text("We've sent a verification code", style = MaterialTheme.typography.bodyLarge)
+            Text("We've sent a verification code for ${phoneNumber}", style = MaterialTheme.typography.bodyLarge)
             Spacer(Modifier.height(8.dp))
             Text("[Phone number here]", style = MaterialTheme.typography.bodyMedium)
 
@@ -80,6 +115,11 @@ fun OtpVerificationScreen() {
                         singleLine = true
                     )
                 }
+            }
+
+            if(errorMessage.isNotEmpty()){
+                Spacer(modifier = Modifier.height((15.dp)))
+                Text(errorMessage, color = MaterialTheme.colorScheme.error)
             }
 
             Spacer(Modifier.height(24.dp))
