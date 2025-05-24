@@ -22,17 +22,9 @@ import kotlinx.coroutines.withContext
 
 
 @Composable
-fun SignUpScreen(navController: NavHostController) {
+fun SignUpScreen(usersDAO: UsersDAO, navController: NavHostController) {
 
     val context = LocalContext.current
-    val db = remember {
-        Room.databaseBuilder(
-            context,
-            UsersDatabase ::class.java,
-            "users"
-        ).build()
-    }
-    val userDao = db.usersDAO()
 
     var userName by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
@@ -69,7 +61,7 @@ fun SignUpScreen(navController: NavHostController) {
                     if(userName.isNotBlank() && phoneNumber.isNotBlank()){
                         CoroutineScope(Dispatchers.IO).launch {
                             try{
-                                userDao.insert(
+                                usersDAO.insert(
                                     UsersEntity(
                                         username = userName,
                                         phoneNumber = phoneNumber
