@@ -20,17 +20,10 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun SignInScreen(navController: NavHostController) {
+fun SignInScreen(usersDAO: UsersDAO, navController: NavHostController) {
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val db = remember {
-        Room.databaseBuilder(
-            context,
-            UsersDatabase ::class.java,
-            "users"
-        ).build()
-    }
 
     var phoneNumber by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
@@ -61,12 +54,12 @@ fun SignInScreen(navController: NavHostController) {
             Button(
                 onClick = {
                     scope.launch {
-                        val user = db.usersDAO().findByPhone(phoneNumber)
+                        val user = usersDAO.findByPhone(phoneNumber)
                         if(user != null){
                             val otp = (100000..999999).random().toString()
                             val expiry = System.currentTimeMillis() + 2 * 60 * 1000
 
-                            db.usersDAO().storeOtp(phoneNumber, otp, expiry)
+                            usersDAO.storeOtp(phoneNumber, otp, expiry)
                             Toast.makeText(context, "OTP: $otp", Toast.LENGTH_SHORT).show()
 
                             navController.navigate("otpverify/${phoneNumber}/${otp}")

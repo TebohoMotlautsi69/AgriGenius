@@ -5,13 +5,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
@@ -33,6 +28,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AgroApp() {
     val navController = rememberNavController()
+    val application = LocalContext.current.applicationContext as AgriGeniusApplication
+    val usersDAO = application.usersDAO
+    val plantGrowthDAO = application.plantGrowthDAO
 
     Scaffold(
         bottomBar = {
@@ -48,17 +46,18 @@ fun AgroApp() {
             startDestination = "signin",
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("signin")      { SignInScreen(navController) }
-            composable("signup")      { SignUpScreen(navController) }
+            composable("signin")      { SignInScreen(usersDAO = usersDAO, navController) }
+            composable("signup")      { SignUpScreen(usersDAO = usersDAO, navController) }
             composable("otpverify/{phoneNumber}/{otp}")   { backStackEntry ->
                 val phoneNumber = backStackEntry.arguments?.getString("phoneNumber") ?:""
                 val otp = backStackEntry.arguments?.getString("otp") ?:""
-                OtpVerificationScreen(navController, phoneNumber, otp ) }
+                OtpVerificationScreen(usersDAO = usersDAO, navController, phoneNumber, otp ) }
             composable("home")         { HomeScreen(navController) }
 //            composable("notifications"){ NotificationsScreen() }
             composable("profile")      { ProfileScreen() }
-            composable("growth")       { PlantGrowthCalculatorScreen() }
+            composable("growth")       { PlantGrowthCalculatorScreen(plantGrowthDAO = plantGrowthDAO, navController = navController) }
             composable("sand")         { SoilClassifierScreen() }
+            composable("growthHistory") { PlantGrowthHistoryScreen(plantGrowthDAO = plantGrowthDAO) }
         }
     }
 }
