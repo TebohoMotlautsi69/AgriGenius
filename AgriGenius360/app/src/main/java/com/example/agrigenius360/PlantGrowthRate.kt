@@ -1,4 +1,3 @@
-// src/main/java/com/example/agrigenius360/MainActivity.kt (or wherever PlantGrowthCalculatorScreen is)
 package com.example.agrigenius360
 
 import androidx.compose.animation.*
@@ -22,7 +21,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun PlantGrowthCalculatorScreen(
     plantGrowthDAO: PlantGrowthDAO,
-    navController: NavController
+    navController: NavController,
+    plantId: Int
 ) {
     var initialHeight by remember { mutableStateOf("") }
     var finalHeight by remember { mutableStateOf("") }
@@ -60,6 +60,8 @@ fun PlantGrowthCalculatorScreen(
 
         coroutineScope.launch {
             val newRecord = PlantGrowthEntity(
+                plantId = plantId,
+                heightCm = fin.toDouble(),
                 initialHeight = init,
                 finalHeight = fin,
                 days = d,
@@ -67,7 +69,7 @@ fun PlantGrowthCalculatorScreen(
                 cropType = cropType.trim(),
                 plantName = plantName.trim()
             )
-            plantGrowthDAO.insertRecord(newRecord)
+            plantGrowthDAO.insertMeasurement(newRecord)
             initialHeight = ""
             finalHeight = ""
             days = ""

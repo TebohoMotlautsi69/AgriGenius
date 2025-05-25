@@ -7,10 +7,13 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "plant_growth_records")
 data class PlantGrowthEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val initialHeight: Float,
-    val finalHeight: Float,
-    val days: Float,
-    val growthRate: Float,
+    val plantId: Int,
+    val heightCm: Double,
+    val measurementDate: Long = System.currentTimeMillis(),
+    val initialHeight: Float = 0.0f,
+    val finalHeight: Float = 0.0f,
+    val days: Float = 0.0f,
+    val growthRate: Float = 0.0f,
     val timestamp: Long = System.currentTimeMillis(),
     val cropType: String = "Unknown",
     val plantName: String = "My Plant"

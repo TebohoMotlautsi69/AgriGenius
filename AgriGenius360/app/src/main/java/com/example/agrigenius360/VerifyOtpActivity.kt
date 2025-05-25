@@ -19,6 +19,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.room.Room
 import com.example.agrigenius360.R
@@ -29,7 +30,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun OtpVerificationScreen(usersDAO: UsersDAO, navController: NavHostController, phoneNumber: String, otp: String ) {
+fun OtpVerificationScreen(usersDAO: UsersDAO, navController: NavController, phoneNumber: String, otp: String ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val keyboardController = LocalSoftwareKeyboardController.current
