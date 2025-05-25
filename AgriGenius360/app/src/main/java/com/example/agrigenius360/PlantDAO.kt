@@ -15,4 +15,7 @@ interface PlantDAO {
 
     @Query("SELECT * FROM plants WHERE id = :plantId")
     suspend fun getPlantById(plantId: Int): PlantEntity?
+
+    @Query("SELECT *FROM plants WHERE name =:plantName AND type = :cropType LIMIT 1")
+    suspend fun getPlantByNameAndType(plantName: String, cropType: String): PlantEntity?
 }

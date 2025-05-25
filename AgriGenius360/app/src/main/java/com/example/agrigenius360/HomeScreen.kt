@@ -32,7 +32,7 @@ fun HomeScreen(navController: NavController, plantDAO: PlantDAO) {
             TopAppBar(
                 title = {
                     Column(
-                        modifier = Modifier.padding(start = 16.dp, top = 16.dp)
+                        modifier = Modifier.padding(start = 16.dp, top = 35.dp, bottom = 50.dp)
                     ) {
                         Text(
                             text = "Hi Username User,",
@@ -41,7 +41,7 @@ fun HomeScreen(navController: NavController, plantDAO: PlantDAO) {
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "How can I help\nyou today?",
+                            text = "Welcome back",
                             fontSize = 25.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
@@ -62,9 +62,9 @@ fun HomeScreen(navController: NavController, plantDAO: PlantDAO) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues) // Apply padding from Scaffold
+                    .padding(paddingValues)
             ) {
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(30.dp))
 
                 Row(
                     modifier = Modifier
@@ -74,7 +74,7 @@ fun HomeScreen(navController: NavController, plantDAO: PlantDAO) {
                 ) {
                     FeatureTile(
                         drawableId = R.drawable.growth,
-                        onClick    = { /* Consider action for this tile now that plants are listed */ }
+                        onClick    = { navController.navigate("growth") }
                     )
 
                     FeatureTile(
@@ -109,7 +109,7 @@ fun HomeScreen(navController: NavController, plantDAO: PlantDAO) {
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.dp, vertical = 4.dp)
-                                    .clickable { navController.navigate("plantHistory/${plant.id}") },
+                                    .clickable { navController.navigate("growthHistory/${plant.id}") },
                                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                             ) {
                                 Column(

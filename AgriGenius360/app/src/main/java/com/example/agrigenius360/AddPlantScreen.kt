@@ -88,7 +88,7 @@ fun AddPlantScreen(
 
             Button(
                 onClick = {
-                    val rate = optimalRate.toDoubleOrNull()
+                    val rate = optimalRate.toFloatOrNull()
                     if (plantName.isBlank() || plantType.isBlank() || rate == null || rate <= 0) {
                         errorMessage = "Please fill all fields and provide a valid optimal rate."
                     } else {

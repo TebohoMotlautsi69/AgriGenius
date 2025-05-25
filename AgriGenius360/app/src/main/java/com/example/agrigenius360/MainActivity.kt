@@ -64,7 +64,7 @@ fun AgroApp() {
                 arguments = listOf(navArgument("plantId") { type = NavType.IntType })
             ) { backStackEntry ->
                 val plantId = backStackEntry.arguments?.getInt("plantId") ?: 0
-                PlantGrowthCalculatorScreen(plantGrowthDAO = plantGrowthDAO, navController = navController, plantId = plantId)
+                PlantGrowthCalculatorScreen(plantGrowthDAO = plantGrowthDAO, plantDAO = plantDAO, navController = navController, plantId = plantId)
             }
             composable("sand") { SoilClassifierScreen() }
             composable("growthHistory/{plantId}",

@@ -94,7 +94,7 @@ fun AddMeasurementScreen(
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
-                    navController.navigate("plantHistory/$plantId") // Directly go to history after adding
+                    navController.navigate("plantHistory/$plantId")
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
                 modifier = Modifier.fillMaxWidth()

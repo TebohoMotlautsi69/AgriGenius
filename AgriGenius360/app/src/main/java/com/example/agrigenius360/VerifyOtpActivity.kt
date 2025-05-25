@@ -34,13 +34,6 @@ fun OtpVerificationScreen(usersDAO: UsersDAO, navController: NavController, phon
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val keyboardController = LocalSoftwareKeyboardController.current
-//    val db = remember {
-//        Room.databaseBuilder(
-//            context,
-//            AppDatabase ::class.java,
-//            "users"
-//        ).build()
-//    }
 
     val focusRequesters = List(6) { remember { FocusRequester() } }
     val otpDigits = remember { mutableStateListOf("", "", "", "", "", "") }
@@ -54,9 +47,7 @@ fun OtpVerificationScreen(usersDAO: UsersDAO, navController: NavController, phon
 
     fun verifyOtp() {
         scope.launch {
-            System.out.println("######phoneNumber"+phoneNumber)
             val user = usersDAO.findByPhone(phoneNumber)
-            System.out.println("######33"+user)
             if(user != null){
                 val inputOtp = otpDigits.joinToString("")
                 val currentTime = System.currentTimeMillis()

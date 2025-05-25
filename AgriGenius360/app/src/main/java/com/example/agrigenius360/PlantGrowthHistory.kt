@@ -5,6 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,38 +34,41 @@ fun PlantGrowthHistoryScreen(
     val measurements by plantGrowthDAO.getMeasurementsForPlant(plantId)
         .collectAsState(initial = emptyList())
 
-    val plant by produceState<PlantEntity?>(initialValue = null, plantDAO, plantId) {
-        value = plantDAO.getPlantById(plantId)
+    var plant by remember { mutableStateOf<PlantEntity?>(null) }
+
+    LaunchedEffect(plantId) {
+        if (plantId !=0){
+            plant = plantDAO.getPlantById(plantId)
+        }
     }
 
     val dateFormatter = remember { SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()) }
 
-
     val avgDailyGrowth = remember(measurements) {
         if (measurements.size < 2) 0.0
         else {
-            val initialMeasurement = measurements.first()
-            val latestMeasurement = measurements.last()
+            val sortMeasurement = measurements.sortedBy { it.measurementDate }
+            val initialMeasurement = sortMeasurement.first()
+            val latestMeasurement = sortMeasurement.last()
             val totalHeightDiff = latestMeasurement.heightCm - initialMeasurement.heightCm
             val totalDays = (latestMeasurement.measurementDate - initialMeasurement.measurementDate) / (1000 * 60 * 60 * 24).toDouble()
             if (totalDays > 0) totalHeightDiff / totalDays else 0.0
         }
     }
 
-    // Determine Growth Status Color and Text
     val growthStatus = remember(avgDailyGrowth, plant?.optimalGrowthRateCmPerDay) {
-        val optimalRate = plant?.optimalGrowthRateCmPerDay ?: 0.0
+        val optimalRate = (plant?.optimalGrowthRateCmPerDay ?: 0.0).toDouble()
         when {
-            optimalRate == 0.0 -> { // No optimal rate defined or zero
+            optimalRate == 0.0 -> {
                 Pair("Optimal rate not set", Color.Gray)
             }
-            avgDailyGrowth >= optimalRate * 0.95 -> { // Within 5% of optimal or better
+            avgDailyGrowth >= optimalRate * 0.95 -> {
                 Pair("Growth: Excellent", Color.Green)
             }
-            avgDailyGrowth >= optimalRate * 0.75 -> { // Between 75% and 95% of optimal
-                Pair("Growth: Good", Color(0xFFFFA500)) // Orange
+            avgDailyGrowth >= optimalRate * 0.75 -> {
+                Pair("Growth: Good", Color(0xFFFFA500))
             }
-            else -> { // Below 75% of optimal
+            else -> {
                 Pair("Growth: Slow", Color.Red)
             }
         }
@@ -72,6 +77,21 @@ fun PlantGrowthHistoryScreen(
     Scaffold(
         topBar = {
             TopAppBar(title = { Text(plant?.name ?: "Plant History") })
+        },
+        floatingActionButton = {
+            Column(horizontalAlignment = Alignment.End) {
+                FloatingActionButton(
+                    onClick = { navController.navigate("addMeasurement/$plantId") },
+                    modifier = Modifier.padding(bottom = 8.dp)
+                ) {
+                    Icon(Icons.Filled.Add, "Add Measurement")
+                }
+                FloatingActionButton(
+                    onClick = { navController.navigate("growth/$plantId") }
+                ) {
+                    Text("Calc Growth")
+                }
+            }
         }
     ) { paddingValues ->
         Column(
@@ -90,7 +110,6 @@ fun PlantGrowthHistoryScreen(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            // Growth Status Display
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -124,8 +143,6 @@ fun PlantGrowthHistoryScreen(
                 }
             }
 
-
-            // Growth Chart
             if (measurements.size > 1) {
                 GrowthChart(measurements = measurements)
                 Spacer(modifier = Modifier.height(16.dp))
@@ -136,7 +153,6 @@ fun PlantGrowthHistoryScreen(
                 )
             }
 
-            // All Measurements List
             Text(
                 text = "All Measurements",
                 fontSize = 18.sp,
@@ -174,37 +190,35 @@ fun GrowthChart(measurements: List<PlantGrowthEntity>) {
     val heights = measurements.map { it.heightCm }
     if (heights.isEmpty()) return
 
-    // Find min and max height for scaling
     val minHeight = heights.minOrNull() ?: 0.0
-    val maxHeight = heights.maxOrNull() ?: 1.0 // Ensure at least 1.0 to prevent division by zero
+    val maxHeight = heights.maxOrNull() ?: 1.0
 
     Canvas(
         modifier = Modifier
             .fillMaxWidth()
             .height(200.dp)
             .padding(16.dp)
-            .background(Color.LightGray.copy(alpha = 0.2f)) // Light background for the chart area
+            .background(Color.LightGray.copy(alpha = 0.2f))
     ) {
         val width = size.width
         val height = size.height
         val dataPoints = measurements.size
-        if (dataPoints < 2) return@Canvas // Need at least two points to draw a line
+        if (dataPoints < 2) return@Canvas
 
-        // X-axis scale (time)
+
         val xStep = width / (dataPoints - 1)
 
-        // Y-axis scale (height)
+
         val yRange = (maxHeight - minHeight).toFloat()
         val yScale = if (yRange > 0) height / yRange else 0f
 
-        // Draw line graph
+
         val path = Path().apply {
-            // Move to the first point
             val firstX = 0f
             val firstY = height - (measurements.first().heightCm - minHeight).toFloat() * yScale
             moveTo(firstX, firstY)
 
-            // Draw lines to subsequent points
+
             measurements.forEachIndexed { index, measurement ->
                 if (index > 0) {
                     val x = index * xStep
@@ -216,11 +230,11 @@ fun GrowthChart(measurements: List<PlantGrowthEntity>) {
 
         drawPath(
             path = path,
-            color = Color.Green, // You could make this color dynamic based on overall performance
+            color = Color.Green,
             style = Stroke(width = 3.dp.toPx())
         )
 
-        // Draw points for each measurement
+
         measurements.forEachIndexed { index, measurement ->
             val x = index * xStep
             val y = height - (measurement.heightCm - minHeight).toFloat() * yScale
