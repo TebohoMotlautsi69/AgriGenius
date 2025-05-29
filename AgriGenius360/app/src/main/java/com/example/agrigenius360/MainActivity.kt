@@ -10,17 +10,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-
+import androidx.navigation.navArgument
+import com.example.agrigenius360.ui.theme.AgriGenius360Theme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            AgroApp()
+            AgriGenius360Theme {
+                AgroApp()
+            }
         }
     }
 }
@@ -31,6 +35,7 @@ fun AgroApp() {
     val application = LocalContext.current.applicationContext as AgriGeniusApplication
     val usersDAO = application.usersDAO
     val plantGrowthDAO = application.plantGrowthDAO
+    val plantDAO = application.plantDAO
 
     Scaffold(
         bottomBar = {
@@ -46,22 +51,45 @@ fun AgroApp() {
             startDestination = "signin",
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("signin")      { SignInScreen(usersDAO = usersDAO, navController) }
-            composable("signup")      { SignUpScreen(usersDAO = usersDAO, navController) }
-            composable("otpverify/{phoneNumber}/{otp}")   { backStackEntry ->
-                val phoneNumber = backStackEntry.arguments?.getString("phoneNumber") ?:""
-                val otp = backStackEntry.arguments?.getString("otp") ?:""
-                OtpVerificationScreen(usersDAO = usersDAO, navController, phoneNumber, otp ) }
-            composable("home")         { HomeScreen(navController) }
-//            composable("notifications"){ NotificationsScreen() }
-            composable("profile")      { ProfileScreen() }
-            composable("growth")       { PlantGrowthCalculatorScreen(plantGrowthDAO = plantGrowthDAO, navController = navController) }
-            composable("sand")         { SoilClassifierScreen() }
-            composable("growthHistory") { PlantGrowthHistoryScreen(plantGrowthDAO = plantGrowthDAO) }
+            composable("signin") { SignInScreen(usersDAO = usersDAO, navController = navController) }
+            composable("signup") { SignUpScreen(usersDAO = usersDAO, navController = navController) }
+            composable("otpverify/{phoneNumber}/{otp}") { backStackEntry ->
+                val phoneNumber = backStackEntry.arguments?.getString("phoneNumber") ?: ""
+                val otp = backStackEntry.arguments?.getString("otp") ?: ""
+                OtpVerificationScreen(usersDAO = usersDAO, navController = navController, phoneNumber = phoneNumber, otp = otp)
+            }
+            composable("home") { HomeScreen(navController = navController, plantDAO = plantDAO) }
+            composable("profile") { ProfileScreen() }
+            composable("growth/{plantId}",
+                arguments = listOf(navArgument("plantId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val plantId = backStackEntry.arguments?.getInt("plantId") ?: 0
+                PlantGrowthCalculatorScreen(plantGrowthDAO = plantGrowthDAO, plantDAO = plantDAO, navController = navController, plantId = plantId)
+            }
+            composable("sand") { SoilClassifierScreen() }
+            composable("growthHistory/{plantId}",
+                arguments = listOf(navArgument("plantId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val plantId = backStackEntry.arguments?.getInt("plantId") ?: 0
+                PlantGrowthHistoryScreen(plantGrowthDAO = plantGrowthDAO, plantDAO = plantDAO, navController = navController, plantId = plantId)
+            }
+            composable("addPlant") {
+                AddPlantScreen(plantDAO = plantDAO, navController = navController)
+            }
+            composable("addMeasurement/{plantId}",
+                arguments = listOf(navArgument("plantId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val plantId = backStackEntry.arguments?.getInt("plantId") ?: 0
+                AddMeasurementScreen(
+                    plantGrowthDAO = plantGrowthDAO,
+                    navController = navController,
+                    plantId = plantId
+                )
+            }
         }
     }
 }
 
 @Composable
-public fun currentRoute(nav: NavHostController): String? =
+fun currentRoute(nav: NavHostController): String? =
     nav.currentBackStackEntryAsState().value?.destination?.route

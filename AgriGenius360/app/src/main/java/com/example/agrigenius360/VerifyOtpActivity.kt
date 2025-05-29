@@ -19,6 +19,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.room.Room
 import com.example.agrigenius360.R
@@ -29,17 +30,10 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun OtpVerificationScreen(usersDAO: UsersDAO, navController: NavHostController, phoneNumber: String, otp: String ) {
+fun OtpVerificationScreen(usersDAO: UsersDAO, navController: NavController, phoneNumber: String, otp: String ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val keyboardController = LocalSoftwareKeyboardController.current
-//    val db = remember {
-//        Room.databaseBuilder(
-//            context,
-//            AppDatabase ::class.java,
-//            "users"
-//        ).build()
-//    }
 
     val focusRequesters = List(6) { remember { FocusRequester() } }
     val otpDigits = remember { mutableStateListOf("", "", "", "", "", "") }
@@ -53,9 +47,7 @@ fun OtpVerificationScreen(usersDAO: UsersDAO, navController: NavHostController, 
 
     fun verifyOtp() {
         scope.launch {
-            System.out.println("######phoneNumber"+phoneNumber)
             val user = usersDAO.findByPhone(phoneNumber)
-            System.out.println("######33"+user)
             if(user != null){
                 val inputOtp = otpDigits.joinToString("")
                 val currentTime = System.currentTimeMillis()

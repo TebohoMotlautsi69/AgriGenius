@@ -1,4 +1,3 @@
-// src/main/java/com/example/agrigenius360/MainActivity.kt (or wherever PlantGrowthCalculatorScreen is)
 package com.example.agrigenius360
 
 import androidx.compose.animation.*
@@ -12,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,26 +21,36 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun PlantGrowthCalculatorScreen(
+    plantDAO: PlantDAO,
     plantGrowthDAO: PlantGrowthDAO,
-    navController: NavController
+    navController: NavController,
+    plantId: Int
 ) {
     var initialHeight by remember { mutableStateOf("") }
     var finalHeight by remember { mutableStateOf("") }
     var days by remember { mutableStateOf("") }
-    var cropType by remember { mutableStateOf("") }
-    var plantName by remember { mutableStateOf("") }
-    var growthRate by remember { mutableStateOf<Float?>(null) }
+    var growthRate by remember { mutableStateOf<Double?>(null) }
     var showResult by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var comparisonMessage by remember { mutableStateOf<String?>(null) }
 
+    var plant by remember { mutableStateOf<PlantEntity?>(null) }
     val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(plantId) {
+        if (plantId !=0){
+            plant = plantDAO.getPlantById(plantId)
+        }
+    }
+    val optimalRate = plant?.optimalGrowthRateCmPerDay?.toDouble() ?: 0.0
 
     fun calculateAndSaveGrowthAction() {
         val init = initialHeight.toFloatOrNull()
         val fin = finalHeight.toFloatOrNull()
         val d = days.toFloatOrNull()
 
-        errorMessage = null // Clear previous errors
+        errorMessage = null
+        comparisonMessage = null
 
         if (init == null || fin == null || d == null) {
             errorMessage = "Please enter valid numbers for all fields."
@@ -55,24 +65,54 @@ fun PlantGrowthCalculatorScreen(
         }
 
         val calculatedRate = (fin - init) / d
-        growthRate = calculatedRate
+        growthRate = calculatedRate.toDouble()
         showResult = true
 
+        if (optimalRate > 0) {
+            when {
+                calculatedRate >= optimalRate * 1.05f -> {
+                    comparisonMessage = "Excellent! Growth has improved beyond optimal."
+                }
+                calculatedRate >= optimalRate * 0.95f -> {
+                    comparisonMessage = "Good! Growth is on track with optimal."
+                }
+                else -> {
+                    comparisonMessage = "Warning: Growth is below optimal."
+                }
+            }
+        } else {
+            comparisonMessage = "Optimal growth rate not defined for this plant."
+        }
+
         coroutineScope.launch {
-            val newRecord = PlantGrowthEntity(
-                initialHeight = init,
-                finalHeight = fin,
-                days = d,
-                growthRate = calculatedRate,
-                cropType = cropType.trim(),
-                plantName = plantName.trim()
-            )
-            plantGrowthDAO.insertRecord(newRecord)
-            initialHeight = ""
-            finalHeight = ""
-            days = ""
-            cropType = ""
-            plantName = ""
+            try {
+
+                if (plant == null) {
+                    errorMessage = "Error: Plant data not loaded. Please try again."
+                    return@launch
+                }
+
+                val newRecord = PlantGrowthEntity(
+                    plantId = plantId,
+                    heightCm = fin.toDouble(),
+                    initialHeight = init,
+                    finalHeight = fin,
+                    days = d,
+                    growthRate = calculatedRate,
+                    cropType = plant!!.type,
+                    plantName = plant!!.name
+                )
+                plantGrowthDAO.insertMeasurement(newRecord)
+                errorMessage = "Growth record saved successfully!"
+                initialHeight =""
+                finalHeight=""
+                days=""
+                showResult = true
+
+            } catch (e: Exception) {
+                errorMessage = "Error saving growth record: ${e.localizedMessage}"
+                e.printStackTrace()
+            }
         }
     }
 
@@ -87,8 +127,13 @@ fun PlantGrowthCalculatorScreen(
 
         Text("🌿 Plant Growth Rate Calculator", fontSize = 24.sp, modifier = Modifier.padding(bottom = 24.dp))
 
-        LabeledInputField("Crop Type (e.g., Corn, Tomato)", cropType, onChange = { cropType = it })
-        LabeledInputField("Plant/Batch Name", plantName, onChange = { plantName = it })
+        plant?.let {
+            Text("Calculating for: ${it.name}", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text("Optimal Rate: ${"%.2f".format(it.optimalGrowthRateCmPerDay)} cm/day", fontSize = 16.sp, modifier = Modifier.padding(bottom = 16.dp))
+        } ?: run {
+            CircularProgressIndicator() // Show loading if plant is null initially
+            Text("Loading plant details...", modifier = Modifier.padding(bottom = 16.dp))
+        }
 
         LabeledNumberField("Initial Height (cm)", initialHeight) { initialHeight = it }
         LabeledNumberField("Final Height (cm)",  finalHeight)   { finalHeight = it }
@@ -133,14 +178,14 @@ fun PlantGrowthCalculatorScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
         Button(
-            onClick = { navController.navigate("growthHistory") },
+            onClick = { navController.navigate("home") {popUpTo("home") { inclusive = true} } },
             colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF087F38)),
             border = ButtonDefaults.outlinedButtonBorder,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
         ) {
-            Text("View Growth History", fontSize = 16.sp)
+            Text("Go to Home", fontSize = 16.sp)
         }
     }
 }
@@ -159,16 +204,16 @@ private fun LabeledNumberField(label: String, value: String, onChange: (String) 
     )
 }
 
-@Composable
-private fun LabeledInputField(label: String, value: String, onChange: (String) -> Unit, keyboardType: KeyboardType = KeyboardType.Text) {
-    Text(label, fontSize = 18.sp, modifier = Modifier.padding(top = 20.dp))
-    OutlinedTextField(
-        value = value,
-        onValueChange = onChange,
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp),
-        singleLine = true
-    )
-}
+//@Composable
+//private fun LabeledInputField(label: String, value: String, onChange: (String) -> Unit, keyboardType: KeyboardType = KeyboardType.Text) {
+//    Text(label, fontSize = 18.sp, modifier = Modifier.padding(top = 20.dp))
+//    OutlinedTextField(
+//        value = value,
+//        onValueChange = onChange,
+//        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(top = 8.dp),
+//        singleLine = true
+//    )
+//}
