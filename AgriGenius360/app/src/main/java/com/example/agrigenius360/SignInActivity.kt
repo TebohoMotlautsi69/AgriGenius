@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -44,6 +45,7 @@ fun SignInScreen(usersDAO: UsersDAO, navController: NavHostController) {
                 label = { Text("Enter phone number") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
+
             )
 
             if(errorMessage.isNotEmpty()){
@@ -69,6 +71,7 @@ fun SignInScreen(usersDAO: UsersDAO, navController: NavHostController) {
                     }
 
                 },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF087F38)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
@@ -84,7 +87,7 @@ fun SignInScreen(usersDAO: UsersDAO, navController: NavHostController) {
                 onClick = {
                     navController.navigate("signup")
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF087F38)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)

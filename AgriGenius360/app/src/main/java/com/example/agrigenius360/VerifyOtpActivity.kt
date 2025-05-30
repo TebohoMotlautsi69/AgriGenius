@@ -24,6 +24,7 @@ import androidx.navigation.NavHostController
 import androidx.room.Room
 import com.example.agrigenius360.R
 import com.example.agrigenius360.AppDatabase
+import com.example.agrigenius360.CurrentUserSession
 import com.example.agrigenius360.UsersDAO
 import kotlinx.coroutines.launch
 
@@ -54,6 +55,7 @@ fun OtpVerificationScreen(usersDAO: UsersDAO, navController: NavController, phon
                 if(user.lastOtp == inputOtp){
                     if(user.lastOtpExpiry != null && user.lastOtpExpiry > currentTime){
                         usersDAO.removeOtp(phoneNumber)
+                        CurrentUserSession.user = user
                         navController.navigate("home")
                     }else{
                         errorMessage = "OTP has expired"
