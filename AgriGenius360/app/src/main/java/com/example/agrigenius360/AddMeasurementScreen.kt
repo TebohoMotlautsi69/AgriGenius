@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -79,7 +80,7 @@ fun AddMeasurementScreen(
                                     PlantGrowthEntity(plantId = plantId, heightCm = height)
                                 )
                                 Toast.makeText(context, "Measurement added!", Toast.LENGTH_SHORT).show()
-                                navController.popBackStack() // Go back to history or home
+                                navController.popBackStack()
                             } catch (e: Exception) {
                                 errorMessage = "Error adding measurement: ${e.localizedMessage}"
                                 e.printStackTrace()
@@ -87,6 +88,7 @@ fun AddMeasurementScreen(
                         }
                     }
                 },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF087F38)),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Add Measurement")
@@ -94,7 +96,7 @@ fun AddMeasurementScreen(
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
-                    navController.navigate("plantHistory/$plantId")
+                    navController.navigate("growthHistory/${plantId}")
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
                 modifier = Modifier.fillMaxWidth()

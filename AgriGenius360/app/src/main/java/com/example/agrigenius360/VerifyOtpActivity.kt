@@ -126,6 +126,7 @@ fun OtpVerificationScreen(usersDAO: UsersDAO, navController: NavController, phon
                     keyboardController?.hide()
                     verifyOtp()
                 },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF087F38)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
