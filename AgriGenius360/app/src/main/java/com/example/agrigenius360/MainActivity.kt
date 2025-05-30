@@ -1,12 +1,14 @@
 package com.example.agrigenius360
 
 import OtpVerificationScreen
+import android.health.connect.datatypes.ExerciseRoute
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
@@ -23,19 +25,29 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             AgriGenius360Theme {
-                AgroApp()
+                AgroApp(startRoute = intent.getStringExtra("route"))
             }
         }
     }
 }
 
 @Composable
-fun AgroApp() {
+fun AgroApp(startRoute: String?) {
     val navController = rememberNavController()
     val application = LocalContext.current.applicationContext as AgriGeniusApplication
     val usersDAO = application.usersDAO
     val plantGrowthDAO = application.plantGrowthDAO
     val plantDAO = application.plantDAO
+
+    LaunchedEffect(startRoute) {
+        if (startRoute != null){
+            navController.navigate(startRoute){
+                popUpTo("home"){
+                    inclusive = true
+                }
+            }
+        }
+    }
 
     Scaffold(
         bottomBar = {

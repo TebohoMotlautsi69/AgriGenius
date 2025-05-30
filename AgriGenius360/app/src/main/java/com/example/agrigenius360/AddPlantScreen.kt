@@ -25,6 +25,7 @@ fun AddPlantScreen(
 
     var plantName by remember { mutableStateOf("") }
     var plantType by remember { mutableStateOf("") }
+    var frequencyMeasure by remember { mutableStateOf("") }
     var optimalRate by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
 
@@ -67,12 +68,19 @@ fun AddPlantScreen(
             OutlinedTextField(
                 value = optimalRate,
                 onValueChange = { newValue ->
-                    // Allow only digits and one decimal point
                     if (newValue.matches(Regex("^\\d*\\.?\\d*\$"))) {
                         optimalRate = newValue
                     }
                 },
                 label = { Text("Optimal Daily Growth Rate (cm/day)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            OutlinedTextField(
+                value = frequencyMeasure,
+                onValueChange = { frequencyMeasure = it },
+                label = { Text("Measurement Frequency (days, optional)") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -89,6 +97,7 @@ fun AddPlantScreen(
             Button(
                 onClick = {
                     val rate = optimalRate.toFloatOrNull()
+                    val frequencyMeasure = frequencyMeasure.toInt()
                     if (plantName.isBlank() || plantType.isBlank() || rate == null || rate <= 0) {
                         errorMessage = "Please fill all fields and provide a valid optimal rate."
                     } else {
@@ -98,14 +107,15 @@ fun AddPlantScreen(
                                     PlantEntity(
                                         name = plantName,
                                         type = plantType,
-                                        optimalGrowthRateCmPerDay = rate
+                                        optimalGrowthRateCmPerDay = rate,
+                                        plantDate = System.currentTimeMillis(),
+                                        measurementFrequencyDays = frequencyMeasure
                                     )
                                 ).toInt()
 
                                 Toast.makeText(context, "Plant added successfully!", Toast.LENGTH_SHORT).show()
-                                // Navigate back to a screen that lists plants, or directly to its history
-                                navController.navigate("home") { // Or "plantList" if you make one
-                                    popUpTo("home") { inclusive = true } // Clear back stack to home
+                                navController.navigate("home") {
+                                    popUpTo("home") { inclusive = true }
                                 }
                             } catch (e: Exception) {
                                 errorMessage = "Error adding plant: ${e.localizedMessage}"

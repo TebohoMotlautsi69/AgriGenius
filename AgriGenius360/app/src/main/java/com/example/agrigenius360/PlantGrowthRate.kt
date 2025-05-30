@@ -1,5 +1,10 @@
 package com.example.agrigenius360
 
+import android.app.PendingIntent
+import android.content.Context
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -11,10 +16,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 
@@ -36,6 +45,7 @@ fun PlantGrowthCalculatorScreen(
 
     var plant by remember { mutableStateOf<PlantEntity?>(null) }
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     LaunchedEffect(plantId) {
         if (plantId !=0){
@@ -107,7 +117,18 @@ fun PlantGrowthCalculatorScreen(
                 initialHeight =""
                 finalHeight=""
                 days=""
-                showResult = true
+                comparisonMessage?.let {msg ->
+                    sendPlantGrowthNotification(
+                        context = context,
+                        plantName = plant!!.name,
+                        growthRate = calculatedRate.toDouble(),
+                        optimalRate = optimalRate,
+                        comparisonMessage = msg,
+                        plantId = plantId
+
+                    )
+                }
+
 
             } catch (e: Exception) {
                 errorMessage = "Error saving growth record: ${e.localizedMessage}"
@@ -125,7 +146,7 @@ fun PlantGrowthCalculatorScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Text("🌿 Plant Growth Rate Calculator", fontSize = 24.sp, modifier = Modifier.padding(bottom = 24.dp))
+        Text("Plant Growth Rate Calculator", fontSize = 24.sp, modifier = Modifier.padding(bottom = 24.dp))
 
         plant?.let {
             Text("Calculating for: ${it.name}", fontSize = 20.sp, fontWeight = FontWeight.Bold)
@@ -166,7 +187,7 @@ fun PlantGrowthCalculatorScreen(
                 colors = CardDefaults.cardColors(containerColor = Color(0xFF087F38))
             ) {
                 Text(
-                    text = "📈 Growth Rate: ${growthRate?.let { "%.2f".format(it) }} cm/day",
+                    text = "Growth Rate: ${growthRate?.let { "%.2f".format(it) }} cm/day",
                     color = Color.White,
                     fontSize = 18.sp,
                     modifier = Modifier
@@ -204,16 +225,44 @@ private fun LabeledNumberField(label: String, value: String, onChange: (String) 
     )
 }
 
-//@Composable
-//private fun LabeledInputField(label: String, value: String, onChange: (String) -> Unit, keyboardType: KeyboardType = KeyboardType.Text) {
-//    Text(label, fontSize = 18.sp, modifier = Modifier.padding(top = 20.dp))
-//    OutlinedTextField(
-//        value = value,
-//        onValueChange = onChange,
-//        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(top = 8.dp),
-//        singleLine = true
-//    )
-//}
+private fun sendPlantGrowthNotification(
+    context: Context,
+    plantName: String,
+    growthRate: Double,
+    optimalRate: Double,
+    comparisonMessage: String,
+    plantId: Int
+
+){
+  val Id_Channel = "growth_alert"
+  val notificationId = plantId
+
+  val intent = Intent(context, MainActivity::class.java).apply {
+      flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+      putExtra("route", "growthHistory/$plantId")
+  }
+
+  val pendingIntent: PendingIntent = PendingIntent.getActivity(
+      context,
+      plantId,
+      intent,
+      PendingIntent.FLAG_UPDATE_CURRENT  or PendingIntent.FLAG_IMMUTABLE
+  )
+  val title = "$plantName Growth Update"
+  val contentText = "$comparisonMessage (Current: %.2f cm/day, Optimal: %.2f cm/day)".format(growthRate, optimalRate)
+  val builder = NotificationCompat.Builder(context, Id_Channel).setSmallIcon(R.drawable.growth)
+      .setContentTitle(title)
+      .setContentText(contentText)
+      .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
+      .setPriority(NotificationCompat.PRIORITY_LOW)
+      .setContentIntent(pendingIntent)
+      .setAutoCancel(true)
+
+  if(ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED){
+      with(NotificationManagerCompat.from(context)){
+          notify(notificationId, builder.build())
+      }
+  }else{
+      println("Notification permission denied for Growth Performance Alert.")
+  }
+}
