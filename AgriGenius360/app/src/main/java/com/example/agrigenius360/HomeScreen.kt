@@ -64,30 +64,6 @@ fun HomeScreen(navController: NavController, plantDAO: PlantDAO) {
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                Spacer(modifier = Modifier.height(30.dp))
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    FeatureTile(
-                        drawableId = R.drawable.growth,
-                        onClick    = { navController.navigate("growth") }
-                    )
-
-                    FeatureTile(
-                        drawableId = R.drawable.moisture,
-                        onClick    = { navController.navigate("sand") }
-                    )
-
-                    FeatureTile(
-                        drawableId = R.drawable.barchart,
-                        onClick    = { /* Placeholder */ }
-                    )
-                }
-
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(

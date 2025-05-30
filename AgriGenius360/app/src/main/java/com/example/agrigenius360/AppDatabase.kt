@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [UsersEntity::class, PlantGrowthEntity::class, PlantEntity::class], version = 2, exportSchema = false)
+@Database(entities = [UsersEntity::class, PlantGrowthEntity::class, PlantEntity::class], version = 3, exportSchema = true)
 abstract class AppDatabase: RoomDatabase() {
     abstract fun usersDAO(): UsersDAO
     abstract fun plantGrowthDAO(): PlantGrowthDAO
