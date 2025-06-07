@@ -41,7 +41,7 @@ class AgriGeniusApplication: Application() {
         val reminderMeasureWorkRequest = PeriodicWorkRequestBuilder<ReminderMeaurementWork>(5000,
             TimeUnit.MILLISECONDS).build()
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            "MeasurementReminderWork",
+            "ReminderMeaurementWork",
             ExistingPeriodicWorkPolicy.KEEP,
             reminderMeasureWorkRequest
         )
