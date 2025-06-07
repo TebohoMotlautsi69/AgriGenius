@@ -35,7 +35,7 @@ fun HomeScreen(navController: NavController, plantDAO: PlantDAO) {
                         modifier = Modifier.padding(start = 16.dp, top = 35.dp, bottom = 50.dp)
                     ) {
                         Text(
-                            text = "Hi Username User,",
+                            text = "Hi ${CurrentUserSession.user?.username}",
                             fontSize = 25.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface

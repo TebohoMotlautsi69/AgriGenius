@@ -71,7 +71,8 @@ fun AgroApp(startRoute: String?) {
                 OtpVerificationScreen(usersDAO = usersDAO, navController = navController, phoneNumber = phoneNumber, otp = otp)
             }
             composable("home") { HomeScreen(navController = navController, plantDAO = plantDAO) }
-            composable("profile") { ProfileScreen() }
+            composable("notifications") { Notifications(navController = navController) }
+            composable("profile") { ProfileScreen(navController = navController) }
             composable("growth/{plantId}",
                 arguments = listOf(navArgument("plantId") { type = NavType.IntType })
             ) { backStackEntry ->

@@ -234,7 +234,7 @@ private fun sendPlantGrowthNotification(
     plantId: Int
 
 ){
-  val Id_Channel = "growth_alert"
+  val Id_Channel = "growth_alerts_channel"
   val notificationId = plantId
 
   val intent = Intent(context, MainActivity::class.java).apply {

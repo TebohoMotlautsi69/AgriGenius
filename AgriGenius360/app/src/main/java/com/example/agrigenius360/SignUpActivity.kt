@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -23,8 +24,6 @@ import kotlinx.coroutines.withContext
 
 @Composable
 fun SignUpScreen(usersDAO: UsersDAO, navController: NavHostController) {
-
-    val context = LocalContext.current
 
     var userName by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
@@ -43,14 +42,14 @@ fun SignUpScreen(usersDAO: UsersDAO, navController: NavHostController) {
             Text(text = "AgriGenius360", fontSize = 32.sp, fontWeight = FontWeight.Bold )
             OutlinedTextField(
                 value = userName,
-                onValueChange = { userName = it },
+                onValueChange = { showError = false; userName = it },
                 label = { Text("Enter username") },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
                 value = phoneNumber,
-                onValueChange = { phoneNumber = it },
+                onValueChange = { showError = false; phoneNumber = it },
                 label = { Text("Enter phone number") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
@@ -58,7 +57,7 @@ fun SignUpScreen(usersDAO: UsersDAO, navController: NavHostController) {
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = {
-                    if(userName.isNotBlank() && phoneNumber.isNotBlank()){
+                    if(userName.isNotBlank() || phoneNumber.isNotBlank()){
                         CoroutineScope(Dispatchers.IO).launch {
                             try{
                                 usersDAO.insert(
@@ -81,8 +80,8 @@ fun SignUpScreen(usersDAO: UsersDAO, navController: NavHostController) {
                         showError = true
                         errorMessage = "Please ensure username and phonenumber are provided"
                     }
-                    navController.navigate("signin")
                 },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF087F38)),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Sign Up")
