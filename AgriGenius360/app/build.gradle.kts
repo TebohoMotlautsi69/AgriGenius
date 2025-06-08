@@ -74,7 +74,7 @@ dependencies {
     ksp("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
 
-    val hilt_version = "2.51.1"
+    val hilt_version = "2.56.2"
     implementation("com.google.dagger:hilt-android:$hilt_version")
     ksp("com.google.dagger:hilt-android-compiler:$hilt_version")
     ksp("androidx.hilt:hilt-compiler:1.2.0")
@@ -89,6 +89,9 @@ dependencies {
 
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("com.google.code.gson:gson:2.11.0")
+
+    implementation(platform("androidx.compose:compose-bom:2024.04.00"))
+    implementation("androidx.compose.material:material-icons-extended")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

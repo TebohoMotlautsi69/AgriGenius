@@ -7,8 +7,10 @@ import android.content.Context
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import dagger.hilt.android.HiltAndroidApp
 import java.util.concurrent.TimeUnit
 
+@HiltAndroidApp
 class AgriGeniusApplication: Application() {
     val database: AppDatabase by lazy { AppDatabase.getDatabase(this) }
     val usersDAO: UsersDAO by lazy { database.usersDAO() }

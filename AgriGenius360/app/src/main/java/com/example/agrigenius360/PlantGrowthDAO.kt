@@ -2,6 +2,7 @@ package com.example.agrigenius360
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
@@ -22,5 +23,14 @@ interface PlantGrowthDAO {
 
     @Query("SELECT * FROM plant_growth_records WHERE plantId = :plantId ORDER BY measurementDate DESC LIMIT 1")
     fun getLatestMeasurementForPlant(plantId: Int): Flow<PlantGrowthEntity?>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertPlantGrowth(record: PlantGrowthEntity)
+
+    @Query("SELECT * FROM plant_growth_records WHERE plantId = :plantId ORDER BY measurementDate ASC")
+    fun getGrowthRecordsForPlant(plantId: Int): Flow<List<PlantGrowthEntity>>
+
+    @Query("SELECT * FROM plant_growth_records WHERE plantName = :plantName ORDER BY measurementDate ASC")
+    fun getGrowthRecordsForPlantByName(plantName: String): Flow<List<PlantGrowthEntity>>
 
 }

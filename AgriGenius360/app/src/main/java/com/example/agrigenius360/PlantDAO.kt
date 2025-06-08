@@ -18,4 +18,15 @@ interface PlantDAO {
 
     @Query("SELECT *FROM plants WHERE name =:plantName AND type = :cropType LIMIT 1")
     suspend fun getPlantByNameAndType(plantName: String, cropType: String): PlantEntity?
+
+
+    @Query("SELECT * FROM plants WHERE name IN (:plantNames)")
+    fun getPlantsByNames(plantNames: List<String>): Flow<List<PlantEntity>>
+
+    @Query("SELECT * FROM plants WHERE name = :plantName LIMIT 1")
+    suspend fun getPlantIdByName(plantName: String): PlantEntity?
+
+    @Query("SELECT name FROM plants")
+    fun getAllPlantNames(): Flow<List<String>>
+
 }
