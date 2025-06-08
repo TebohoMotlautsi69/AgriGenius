@@ -19,7 +19,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.agrigenius360.ui.theme.AgriGenius360Theme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +54,7 @@ fun AgroApp(startRoute: String?) {
     Scaffold(
         bottomBar = {
             val route = currentRoute(navController)
-            if (route in listOf("home", "notifications", "profile")) {
+            if (route in listOf("home", "analytics", "profile")) {
                 BottomBarNav(navController)
             }
         }
@@ -71,7 +73,7 @@ fun AgroApp(startRoute: String?) {
                 OtpVerificationScreen(usersDAO = usersDAO, navController = navController, phoneNumber = phoneNumber, otp = otp)
             }
             composable("home") { HomeScreen(navController = navController, plantDAO = plantDAO) }
-            composable("notifications") { Notifications(navController = navController) }
+            composable("analytics") { Analytics(navController = navController) }
             composable("profile") { ProfileScreen(navController = navController) }
             composable("growth/{plantId}",
                 arguments = listOf(navArgument("plantId") { type = NavType.IntType })
